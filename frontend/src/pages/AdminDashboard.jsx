@@ -6,7 +6,8 @@ import {
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import AttendanceChart from '../components/AttendanceChart';
-import { notices, recentStudents, statistics, todaySchedule } from '../data/mockData';
+import { notices, statistics, todaySchedule } from '../data/mockData';
+import { useStudents } from '../context/StudentsContext';
 
 const statIcons = { students: GraduationCap, teachers: UsersRound, attendance: CalendarCheck2, classes: Layers3 };
 const avatarTones = {
@@ -49,6 +50,9 @@ function SummaryCard({ item, index }) {
 }
 
 export default function AdminDashboard() {
+  const { students } = useStudents();
+  const recentStudents = useMemo(() => students.slice(0, 7).map((student) => ({ ...student, className: `Class ${student.className}`, initials: student.name.split(' ').slice(0, 2).map((n) => n[0]).join('').toUpperCase(), tone: 'mint' })), [students]);
+  const dashboardStatistics = useMemo(() => statistics.map((item) => item.icon === 'students' ? { ...item, value: String(students.length), change: 'Demo', detail: 'profiles in browser' } : item), [students]);
   const [query, setQuery] = useState('');
   const [showAllStudents, setShowAllStudents] = useState(false);
   const filteredStudents = useMemo(() => recentStudents.filter((student) =>
@@ -84,7 +88,7 @@ export default function AdminDashboard() {
       <div>
         <SectionHeading eyebrow="At a glance" title="School overview" />
         <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          {statistics.map((item, index) => <SummaryCard key={item.label} item={item} index={index}/>)}
+          {dashboardStatistics.map((item, index) => <SummaryCard key={item.label} item={item} index={index}/>)}
         </div>
         <p className="mt-2.5 text-[11px] text-zinc-400">All figures on this dashboard are sample data for UI preview.</p>
       </div>
@@ -180,7 +184,7 @@ export default function AdminDashboard() {
           <Link to="/admin/notices" className="mt-5 inline-flex items-center gap-1.5 text-xs font-bold text-[#4D7C0F] hover:underline">Open notice board <ArrowRight size={14}/></Link>
         </section>
       </div>
-      <div className="pb-1 text-center text-[11px] text-zinc-400">EduSphere • University project preview • UI checkpoint 1</div>
+      <div className="pb-1 text-center text-[11px] text-zinc-400">EduSphere • University project preview • UI checkpoint 3</div>
     </div>
   );
 }

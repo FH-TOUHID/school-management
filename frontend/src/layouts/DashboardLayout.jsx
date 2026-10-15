@@ -7,7 +7,7 @@ export default function DashboardLayout() {
   const [menuOpen, setMenuOpen] = useState(false);
   const location = useLocation();
 
-  useEffect(() => { setMenuOpen(false); }, [location.pathname]);
+  useEffect(() => { setMenuOpen(false); document.title = ({'/admin/students':'Student management','/admin/teachers':'Teacher management','/admin/academics':'Academic management'}[location.pathname] || 'Admin dashboard') + ' · EduSphere'; }, [location.pathname]);
   useEffect(() => {
     function handleEscape(event) { if (event.key === 'Escape') setMenuOpen(false); }
     window.addEventListener('keydown', handleEscape);

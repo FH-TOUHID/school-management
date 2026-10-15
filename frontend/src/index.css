@@ -31,3 +31,6 @@ button { cursor: pointer; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
+
+/* The sign-in view uses the same tokens as the admin dashboard. */
+input:-webkit-autofill { -webkit-box-shadow: 0 0 0 100px #ffffff inset; -webkit-text-fill-color: #18181B; }
