@@ -13,8 +13,13 @@ import { AcademicsProvider } from './context/AcademicsContext';
 import { TeachersProvider } from './context/TeachersContext';
 import TeachersPage from './pages/TeachersPage';
 import AcademicsPage from './pages/AcademicsPage';
+import AttendancePage from './pages/AttendancePage';
+import RoutinePage from './pages/RoutinePage';
+import ExamsPage from './pages/ExamsPage';
+import NoticesPage from './pages/NoticesPage';
+import { OperationsProvider } from './context/OperationsContext';
 
-const modules = ['attendance','routine','exams','notices','settings','help'];
+const modules = ['settings','help'];
 
 function HomeRedirect() {
   const { user } = useAuth();
@@ -31,6 +36,10 @@ function AppRoutes() {
           <Route path="/admin/students" element={<StudentsPage/>}/>
           <Route path="/admin/teachers" element={<TeachersPage/>}/>
           <Route path="/admin/academics" element={<AcademicsPage/>}/>
+          <Route path="/admin/attendance" element={<AttendancePage/>}/>
+          <Route path="/admin/routine" element={<RoutinePage/>}/>
+          <Route path="/admin/exams" element={<ExamsPage/>}/>
+          <Route path="/admin/notices" element={<NoticesPage/>}/>
           {modules.map((id) => <Route key={id} path={`/admin/${id}`} element={<ModulePreview moduleId={id}/>}/>)}
         </Route>
       </Route>
@@ -46,5 +55,5 @@ function AppRoutes() {
 }
 
 export default function App() {
-  return <BrowserRouter><AuthProvider><StudentsProvider><AcademicsProvider><TeachersProvider><AppRoutes/></TeachersProvider></AcademicsProvider></StudentsProvider></AuthProvider></BrowserRouter>;
+  return <BrowserRouter><AuthProvider><StudentsProvider><AcademicsProvider><TeachersProvider><OperationsProvider><AppRoutes/></OperationsProvider></TeachersProvider></AcademicsProvider></StudentsProvider></AuthProvider></BrowserRouter>;
 }
