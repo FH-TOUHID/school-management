@@ -2,8 +2,8 @@
 export const DEMO_PASSWORD = 'Demo1234!';
 export const DEMO_USERS = [
   { id: 'demo-admin', name: 'Farhan Ahmed', email: 'admin@school.test', role: 'admin', initials: 'FA' },
-  { id: 'demo-teacher', name: 'Nusrat Jahan', email: 'teacher@school.test', role: 'teacher', initials: 'NJ' },
-  { id: 'demo-student', name: 'Rafi Hasan', email: 'student@school.test', role: 'student', initials: 'RH' },
+  { id: 'demo-teacher', name: 'Mahmud Hasan', email: 'teacher@school.test', role: 'teacher', initials: 'MH', teacherId: 'TCH-202' },
+  { id: 'demo-student', name: 'Nusrat Jahan', email: 'student@school.test', role: 'student', initials: 'NJ', studentId: 'STU-1048' },
 ];
 
 const STORAGE_KEY = 'edusphere_demo_session_v1';

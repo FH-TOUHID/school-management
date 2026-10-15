@@ -6,7 +6,9 @@ import DashboardLayout from './layouts/DashboardLayout';
 import AdminDashboard from './pages/AdminDashboard';
 import LoginPage from './pages/LoginPage';
 import ModulePreview from './pages/ModulePreview';
-import RoleDashboardPreview from './pages/RoleDashboardPreview';
+import PortalLayout from './layouts/PortalLayout';
+import TeacherPortal from './pages/portal/TeacherPortal';
+import StudentPortal from './pages/portal/StudentPortal';
 import StudentsPage from './pages/StudentsPage';
 import { StudentsProvider } from './context/StudentsContext';
 import { AcademicsProvider } from './context/AcademicsContext';
@@ -44,10 +46,18 @@ function AppRoutes() {
         </Route>
       </Route>
       <Route element={<RequireRole role="teacher"/>}>
-        <Route path="/teacher/dashboard" element={<RoleDashboardPreview/>}/>
+        <Route element={<PortalLayout/>}>
+          {['dashboard','classes','attendance','marks','routine','notices','profile'].map(view =>
+            <Route key={view} path={`/teacher/${view}`} element={<TeacherPortal view={view}/>}/>
+          )}
+        </Route>
       </Route>
       <Route element={<RequireRole role="student"/>}>
-        <Route path="/student/dashboard" element={<RoleDashboardPreview/>}/>
+        <Route element={<PortalLayout/>}>
+          {['dashboard','profile','attendance','routine','results','notices'].map(view =>
+            <Route key={view} path={`/student/${view}`} element={<StudentPortal view={view}/>}/>
+          )}
+        </Route>
       </Route>
       <Route path="*" element={<HomeRedirect/>}/>
     </Routes>
