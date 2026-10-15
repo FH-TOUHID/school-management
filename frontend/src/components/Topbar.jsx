@@ -8,7 +8,7 @@ function formatDate() {
   return new Intl.DateTimeFormat('en-BD', {weekday:'long',month:'short',day:'numeric',year:'numeric',timeZone:'Asia/Dhaka'}).format(new Date());
 }
 
-export default function Topbar({ onMenuClick }) {
+export default function Topbar({ onMenuClick, menuOpen = false, menuTriggerRef }) {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
@@ -34,7 +34,7 @@ export default function Topbar({ onMenuClick }) {
   return (
     <header className="sticky top-0 z-30 flex h-[78px] items-center justify-between border-b border-[#E4E4E7] bg-[#F4F4F5]/95 px-5 backdrop-blur-xl sm:px-7 xl:px-10">
       <div className="flex min-w-0 items-center gap-3">
-        <button type="button" onClick={onMenuClick} className="-ml-1 rounded-xl p-2.5 text-zinc-800 hover:bg-white lg:hidden" aria-label="Open navigation menu"><Menu size={22}/></button>
+        <button type="button" ref={menuTriggerRef} onClick={onMenuClick} className="-ml-1 rounded-xl p-2.5 text-zinc-800 hover:bg-white lg:hidden" aria-label="Open navigation menu" aria-controls="admin-sidebar" aria-expanded={menuOpen}><Menu size={22}/></button>
         <div><p className="text-[11px] font-medium text-zinc-500">School overview <span className="px-1.5">/</span> <span className="text-zinc-800">{label}</span></p><p className="mt-1 hidden text-[12px] text-zinc-500 sm:block">{formatDate()}</p></div>
       </div>
       <div className="flex items-center gap-2.5 sm:gap-4" ref={containerRef}>

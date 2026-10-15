@@ -4,6 +4,7 @@ import {
   School, Settings2, UsersRound, X,
 } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
+import { useEffect, useRef } from 'react';
 
 export const navigation = [
   { label: 'Dashboard', to: '/admin/dashboard', icon: LayoutDashboard },
@@ -43,6 +44,8 @@ function SidebarLink({ item, onNavigate }) {
 }
 
 export default function Sidebar({ open, onClose }) {
+  const closeRef = useRef(null);
+  useEffect(() => { if (open) closeRef.current?.focus({ preventScroll: true }); }, [open]);
   return (
     <>
       {open && (
@@ -54,8 +57,9 @@ export default function Sidebar({ open, onClose }) {
         />
       )}
       <aside
+        id="admin-sidebar"
         className={`fixed inset-y-0 left-0 z-50 flex w-[272px] flex-col bg-[#18181B] text-white transition-transform duration-300 lg:translate-x-0 ${
-          open ? 'translate-x-0' : '-translate-x-full'
+          open ? 'translate-x-0 visible' : '-translate-x-full invisible lg:visible'
         }`}
         aria-label="Main navigation"
       >
@@ -69,7 +73,7 @@ export default function Sidebar({ open, onClose }) {
               <span className="mt-0.5 block text-[10px] font-medium uppercase tracking-[0.22em] text-zinc-500">School management</span>
             </span>
           </NavLink>
-          <button type="button" onClick={onClose} className="rounded-lg p-2 text-zinc-400 hover:bg-white/10 lg:hidden" aria-label="Close menu">
+          <button ref={closeRef} type="button" onClick={onClose} className="rounded-lg p-2 text-zinc-400 hover:bg-white/10 lg:hidden" aria-label="Close menu">
             <X size={20} />
           </button>
         </div>

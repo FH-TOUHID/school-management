@@ -34,3 +34,21 @@ button { cursor: pointer; }
 
 /* The sign-in view uses the same tokens as the admin dashboard. */
 input:-webkit-autofill { -webkit-box-shadow: 0 0 0 100px #ffffff inset; -webkit-text-fill-color: #18181B; }
+
+/* Checkpoint 7 — touch targets, viewport behavior, and keyboard accessibility */
+*, *::before, *::after { box-sizing: border-box; }
+html { overflow-x: clip; }
+body { overflow-x: clip; }
+#main-content { scroll-margin-top: 5.5rem; }
+.skip-to-main {
+  position: fixed; top: .75rem; left: .75rem; z-index: 200;
+  padding: .75rem 1rem; transform: translateY(-160%);
+  border-radius: .75rem; background: #A3E635; color: #18181B;
+  font-size: .8125rem; font-weight: 800; box-shadow: 0 10px 24px #0002;
+}
+.skip-to-main:focus { transform: translateY(0); }
+button:disabled { cursor: not-allowed; }
+input, textarea, select { max-width: 100%; }
+@media (max-width: 639px) {
+  input[type="date"], select { min-width: 0; }
+}

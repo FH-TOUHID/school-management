@@ -65,5 +65,10 @@ function AppRoutes() {
 }
 
 export default function App() {
-  return <BrowserRouter><AuthProvider><StudentsProvider><AcademicsProvider><TeachersProvider><OperationsProvider><AppRoutes/></OperationsProvider></TeachersProvider></AcademicsProvider></StudentsProvider></AuthProvider></BrowserRouter>;
+  return <BrowserRouter><a
+    href="#main-content"
+    className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-xl focus:bg-[#A3E635] focus:px-4 focus:py-3 focus:text-sm focus:font-bold focus:text-[#18181B] focus:shadow-xl"
+  >
+    Skip to main content
+  </a><AuthProvider><StudentsProvider><AcademicsProvider><TeachersProvider><OperationsProvider><AppRoutes/></OperationsProvider></TeachersProvider></AcademicsProvider></StudentsProvider></AuthProvider></BrowserRouter>;
 }

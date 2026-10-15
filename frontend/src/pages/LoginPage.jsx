@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   ArrowRight, BookOpenCheck, CalendarCheck2, Check, ChevronDown,
   Eye, EyeOff, GraduationCap, LockKeyhole, Mail, ShieldCheck,
@@ -70,6 +70,8 @@ export default function LoginPage() {
   const { user, signIn } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const emailRef = useRef(null);
+  const passwordRef = useRef(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -95,7 +97,8 @@ export default function LoginPage() {
     event.preventDefault();
     setSubmitted(true);
     setError('');
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()) || !password) return;
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) { emailRef.current?.focus(); return; }
+    if (!password) { passwordRef.current?.focus(); return; }
     const success = signIn(email, password);
     if (!success) {
       setError('Demo account not found. Choose a demo role below or check your password.');
@@ -123,7 +126,7 @@ export default function LoginPage() {
         <div className="relative z-10 flex items-center justify-between gap-4 text-[11px] text-zinc-500"><span>© {new Date().getFullYear()} EduSphere</span><span>Built for Bangladesh schools</span></div>
       </section>
 
-      <main className="relative flex min-h-screen items-center justify-center px-5 py-8 sm:px-10 lg:px-12 xl:px-20">
+      <main id="main-content" tabIndex={-1} className="relative flex min-h-screen items-center justify-center px-5 py-8 sm:px-10 lg:px-12 xl:px-20">
         <div className="absolute left-5 top-5 lg:hidden"><Brand dark/></div>
         <div className="w-full max-w-[445px] pt-16 lg:pt-0">
           <div className="mb-8 flex items-center justify-between gap-3">
@@ -139,7 +142,7 @@ export default function LoginPage() {
               <label htmlFor="login-email" className="mb-2 block text-xs font-bold text-zinc-700">Email address</label>
               <div className={`flex h-[54px] items-center gap-3 rounded-xl border bg-white px-4 transition focus-within:border-[#84CC16] focus-within:ring-4 focus-within:ring-[#A3E635]/15 ${emailInvalid ? 'border-red-400' : 'border-[#E4E4E7]'}`}>
                 <Mail size={18} className="shrink-0 text-zinc-400" aria-hidden="true" />
-                <input id="login-email" autoComplete="username" type="email" value={email} onChange={(event) => {setEmail(event.target.value);setError('');}} placeholder="name@school.edu.bd" aria-invalid={emailInvalid} aria-describedby={emailInvalid ? 'email-error' : undefined} className="min-w-0 flex-1 bg-transparent text-sm text-zinc-900 outline-none placeholder:text-zinc-400"/>
+                <input ref={emailRef} id="login-email" autoComplete="username" type="email" value={email} onChange={(event) => {setEmail(event.target.value);setError('');}} placeholder="name@school.edu.bd" aria-invalid={emailInvalid} aria-describedby={emailInvalid ? 'email-error' : undefined} className="min-w-0 flex-1 bg-transparent text-sm text-zinc-900 outline-none placeholder:text-zinc-400"/>
               </div>
               {emailInvalid && <p id="email-error" className="mt-2 text-xs text-red-600">Please enter a valid email address.</p>}
             </div>
@@ -147,7 +150,7 @@ export default function LoginPage() {
               <label htmlFor="login-password" className="mb-2 block text-xs font-bold text-zinc-700">Password</label>
               <div className={`flex h-[54px] items-center gap-3 rounded-xl border bg-white px-4 transition focus-within:border-[#84CC16] focus-within:ring-4 focus-within:ring-[#A3E635]/15 ${passwordInvalid ? 'border-red-400' : 'border-[#E4E4E7]'}`}>
                 <LockKeyhole size={18} className="shrink-0 text-zinc-400" aria-hidden="true" />
-                <input id="login-password" autoComplete="current-password" type={showPassword ? 'text' : 'password'} value={password} onChange={(event) => {setPassword(event.target.value);setError('');}} placeholder="Enter your password" aria-invalid={passwordInvalid} aria-describedby={passwordInvalid ? 'password-error' : undefined} className="min-w-0 flex-1 bg-transparent text-sm text-zinc-900 outline-none placeholder:text-zinc-400" />
+                <input ref={passwordRef} id="login-password" autoComplete="current-password" type={showPassword ? 'text' : 'password'} value={password} onChange={(event) => {setPassword(event.target.value);setError('');}} placeholder="Enter your password" aria-invalid={passwordInvalid} aria-describedby={passwordInvalid ? 'password-error' : undefined} className="min-w-0 flex-1 bg-transparent text-sm text-zinc-900 outline-none placeholder:text-zinc-400" />
                 <button type="button" onClick={() => setShowPassword((v) => !v)} aria-label={showPassword ? 'Hide password' : 'Show password'} aria-pressed={showPassword} className="rounded-lg p-1 text-zinc-400 hover:text-zinc-900">{showPassword ? <EyeOff size={19}/> : <Eye size={19}/>}</button>
               </div>
               {passwordInvalid && <p id="password-error" className="mt-2 text-xs text-red-600">Password is required.</p>}

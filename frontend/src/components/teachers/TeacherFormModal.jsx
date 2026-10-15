@@ -31,7 +31,10 @@ export default function TeacherFormModal({teacher,onClose,onSave,teachers}) {
     if(form.assignments.some(a=>!academics.classes.some(c=>c.name===a.className&&c.sections.includes(a.section)) || !academics.classSubjects[a.className]?.includes(a.subjectId)))next.assignments='Select a valid class, section and subject for each assignment.';
     if(new Set(form.assignments.map(a=>`${a.className}|${a.section}|${a.subjectId}`)).size!==form.assignments.length)next.assignments='Duplicate assignments are not allowed.';
     if(form.email && teachers.some(t=>t.id!==teacher?.id&&t.email&&t.email.toLowerCase()===form.email.trim().toLowerCase()))next.email='Email is already used by another teacher.';
-    setErrors(next);if(Object.keys(next).length)return;
+    setErrors(next);if(Object.keys(next).length){
+      requestAnimationFrame(()=>document.querySelector('[role=dialog] [aria-invalid=true]')?.focus());
+      return;
+    }
     const {id:_id,...rest}=form;
     onSave({...rest,name:form.name.trim(),email:form.email.trim(),phone:form.phone.trim(),assignments:form.assignments});
   }
@@ -42,7 +45,7 @@ export default function TeacherFormModal({teacher,onClose,onSave,teachers}) {
       <div className="rounded-xl border border-[#D9F99D] bg-[#F7FEE7] p-3.5 text-[12px] leading-5 text-[#3F6212]">Frontend demo only. Adding a teacher here does not create login credentials or modify Go JSON files.</div>
       <section className="space-y-4"><h3 className="text-[11px] font-extrabold uppercase tracking-[0.16em] text-zinc-400">Personal information</h3>
         <div className="grid gap-4 sm:grid-cols-2">
-          <div className="sm:col-span-2"><Field label="Full name" required error={errors.name}><input {...field('name',{placeholder:'e.g. Samira Rahman',maxLength:80})}/></Field></div>
+          <div className="sm:col-span-2"><Field label="Full name" required error={errors.name}><input data-dialog-initial-focus {...field('name',{placeholder:'e.g. Samira Rahman',maxLength:80})}/></Field></div>
           <Field label="Designation"><select {...field('designation')}><option>Assistant Teacher</option><option>Senior Teacher</option><option>Head Teacher</option></select></Field>
           <Field label="Gender"><select {...field('gender')}><option value="">Select gender</option><option>Female</option><option>Male</option><option>Other</option></select></Field>
           <Field label="Email (optional)" error={errors.email}><input type="email" {...field('email',{placeholder:'teacher@school.test'})}/></Field>

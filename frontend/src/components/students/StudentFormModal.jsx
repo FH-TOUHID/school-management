@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { GraduationCap, Info, Save, X } from 'lucide-react';
 import { useAcademics } from '../../context/AcademicsContext';
+import useDialogAccessibility from '../../hooks/useDialogAccessibility';
 
 const initial = {
   name: '', className: '6', section: 'A', roll: '', status: 'Active',
@@ -36,19 +37,11 @@ function FormField({ label, error, required, children }) {
 export default function StudentFormModal({ mode, student, students, onClose, onSave }) {
   const { academics } = useAcademics();
   const classOptions = academics.classes.map(c=>c.name);
-  const [form, setForm] = useState(student ? { ...student } : initial);
+  const [form, setForm] = useState(() => student ? { ...student } : { ...initial, className: academics.classes[0]?.name || '', section: academics.classes[0]?.sections[0] || '' });
   const [errors, setErrors] = useState({});
-  const nameRef = useRef(null);
+  const dialogRef = useDialogAccessibility(onClose);
   const editing = mode === 'edit';
   const sectionOptions = academics.classes.find(c=>c.name===form.className)?.sections || []; 
-  useEffect(() => {
-    const previous = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    nameRef.current?.focus();
-    function onKeyDown(event) { if (event.key === 'Escape') onClose(); }
-    window.addEventListener('keydown', onKeyDown);
-    return () => { document.body.style.overflow = previous; window.removeEventListener('keydown', onKeyDown); };
-  }, [onClose]);
 
   function set(field, value) {
     setForm((previous) => ({ ...previous, [field]: value }));
@@ -57,16 +50,26 @@ export default function StudentFormModal({ mode, student, students, onClose, onS
   function submit(event) {
     event.preventDefault();
     const nextErrors = validate(form, students, student?.id);
+    if (!academics.classes.some(c=>c.name===form.className && c.sections.includes(form.section))) {
+      nextErrors.section = 'Select a valid class and section.';
+    }
     setErrors(nextErrors);
-    if (Object.keys(nextErrors).length) return;
+    if (Object.keys(nextErrors).length) {
+      requestAnimationFrame(() => {
+        const invalid = dialogRef.current?.querySelector('[aria-invalid=true]');
+        invalid?.focus();
+        invalid?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      });
+      return;
+    }
     const { id: _id, academicYear: _year, ...fields } = form;
     onSave({ ...fields, name: form.name.trim(), roll: String(Number(form.roll)), email: form.email.trim(), phone: form.phone.trim() });
   }
   const input = (field, props = {}) => ({ ...props, value: form[field] || '', onChange: (event) => set(field, event.target.value), className: fieldClass, 'aria-invalid': Boolean(errors[field]) });
 
   return createPortal(
-    <div className="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto bg-[#09090B]/65 px-3 py-3 backdrop-blur-[3px] sm:px-5 sm:py-6" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
-      <section role="dialog" aria-modal="true" aria-labelledby="student-form-title" className="flex w-full max-w-[720px] max-h-[calc(100dvh-1.5rem)] flex-col overflow-hidden rounded-[22px] bg-white shadow-[0_30px_90px_rgba(0,0,0,0.28)] sm:max-h-[calc(100dvh-3rem)] sm:rounded-[26px]">
+    <div className="fixed inset-0 z-[130] flex items-center justify-center bg-[#09090B]/65 p-2 backdrop-blur-[3px] sm:p-6" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+      <section ref={dialogRef} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="student-form-title" className="flex w-full max-w-[720px] max-h-[calc(100dvh-1rem)] flex-col overflow-hidden rounded-[22px] bg-white shadow-[0_30px_90px_rgba(0,0,0,0.28)] sm:max-h-[calc(100dvh-3rem)] sm:rounded-[26px]">
         <div className="flex shrink-0 items-center justify-between gap-3 border-b border-zinc-100 bg-white px-5 py-4 sm:px-7 sm:py-5">
           <div className="flex items-center gap-3">
             <span className="flex size-11 items-center justify-center rounded-xl bg-[#F7FEE7] text-[#4D7C0F]"><GraduationCap size={22}/></span>
@@ -80,7 +83,7 @@ export default function StudentFormModal({ mode, student, students, onClose, onS
             <div>
               <p className="mb-4 text-[11px] font-extrabold uppercase tracking-[0.14em] text-zinc-400">Personal information</p>
               <div className="grid gap-4 sm:grid-cols-2">
-                <div className="sm:col-span-2"><FormField label="Full name" required error={errors.name}><input ref={nameRef} {...input('name', { placeholder: 'e.g. Nusrat Jahan', maxLength: 80 })}/></FormField></div>
+                <div className="sm:col-span-2"><FormField label="Full name" required error={errors.name}><input data-dialog-initial-focus {...input('name', { placeholder: 'e.g. Nusrat Jahan', maxLength: 80 })}/></FormField></div>
                 <FormField label="Gender"><select {...input('gender')}><option value="">Select gender</option><option>Female</option><option>Male</option><option>Other</option></select></FormField>
                 <FormField label="Date of birth" error={errors.dateOfBirth}><input type="date" {...input('dateOfBirth')}/></FormField>
                 <FormField label="Email (optional)" error={errors.email}><input type="email" {...input('email', { placeholder: 'student@example.com' })}/></FormField>
@@ -91,7 +94,7 @@ export default function StudentFormModal({ mode, student, students, onClose, onS
               <p className="mb-4 text-[11px] font-extrabold uppercase tracking-[0.14em] text-zinc-400">Academic information</p>
               <div className="grid gap-4 sm:grid-cols-3">
                 <FormField label="Class" required><select {...input('className')} onChange={(event)=>{ set('className',event.target.value); set('section',academics.classes.find(c=>c.name===event.target.value)?.sections[0]||''); }}>{classOptions.map((value) => <option key={value} value={value}>Class {value}</option>)}</select></FormField>
-                <FormField label="Section" required><select {...input('section')}>{sectionOptions.map(value=><option key={value} value={value}>Section {value}</option>)}</select></FormField>
+                <FormField label="Section" required error={errors.section}><select {...input('section')}>{sectionOptions.map(value=><option key={value} value={value}>Section {value}</option>)}</select></FormField>
                 <FormField label="Roll no." required error={errors.roll}><input type="number" min="1" max="999" {...input('roll', { placeholder: 'e.g. 12' })}/></FormField>
                 <FormField label="Admission date" required error={errors.admissionDate}><input type="date" {...input('admissionDate')}/></FormField>
                 <FormField label="Status"><select {...input('status')}><option>Active</option><option>Inactive</option></select></FormField>
@@ -100,7 +103,7 @@ export default function StudentFormModal({ mode, student, students, onClose, onS
             </div>
           </div>
         </form>
-        <div className="flex shrink-0 items-center justify-end gap-3 border-t border-zinc-100 bg-white px-5 py-3 sm:px-7 sm:py-4">
+        <div className="flex shrink-0 flex-wrap items-center justify-end gap-2 border-t border-zinc-100 bg-white px-4 py-3 pb-[max(.75rem,env(safe-area-inset-bottom))] sm:gap-3 sm:px-7 sm:py-4">
           <button type="button" onClick={onClose} className="rounded-xl border border-[#E4E4E7] px-4 py-3 text-[12px] font-bold text-zinc-700 hover:bg-zinc-50">Cancel</button>
           <button type="submit" form="student-form" className="inline-flex items-center gap-2 rounded-xl bg-[#18181B] px-5 py-3 text-[12px] font-bold text-white transition hover:bg-[#333339]"><Save size={16}/>{editing ? 'Save changes' : 'Add student'}</button>
         </div>

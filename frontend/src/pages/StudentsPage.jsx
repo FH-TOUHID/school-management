@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
+import useDialogAccessibility from '../hooks/useDialogAccessibility';
 import {
   BookOpenText, CalendarDays,
   Check, ChevronDown, ChevronLeft, ChevronRight, CircleUserRound,
@@ -28,15 +29,9 @@ function InfoLine({ icon: Icon, label, value }) {
   return <div className="flex items-start gap-3 rounded-xl border border-[#F0F0F1] p-3.5"><span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-zinc-50 text-zinc-500"><Icon size={17}/></span><div className="min-w-0"><p className="text-[11px] text-zinc-500">{label}</p><p className="mt-1 break-words text-[13px] font-semibold text-[#18181B]">{value || 'Not provided'}</p></div></div>;
 }
 function StudentDetail({ student, onClose, onEdit, onDelete }) {
-  useEffect(() => {
-    const previous = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    function onKey(event) { if (event.key === 'Escape') onClose(); }
-    window.addEventListener('keydown', onKey);
-    return () => { document.body.style.overflow = previous; window.removeEventListener('keydown', onKey); };
-  }, [onClose]);
+  const dialogRef = useDialogAccessibility(onClose);
   return createPortal(<div className="fixed inset-0 z-[90] flex justify-end bg-[#09090B]/55 backdrop-blur-[2px]" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
-    <aside role="dialog" aria-modal="true" aria-label={`${student.name} student profile`} className="flex h-full w-full max-w-[480px] flex-col overflow-hidden bg-white shadow-2xl animate-enter">
+    <aside ref={dialogRef} tabIndex={-1} role="dialog" aria-modal="true" aria-label={`${student.name} student profile`} className="flex h-full w-full max-w-[480px] flex-col overflow-hidden bg-white shadow-2xl animate-enter">
       <div className="flex items-center justify-between border-b border-zinc-100 p-5 sm:px-7"><span className="text-[13px] font-bold">Student profile <span className="ml-2 text-[11px] font-normal text-zinc-400">/ {student.id}</span></span><button type="button" className="rounded-xl p-2 text-zinc-600 hover:bg-zinc-100" onClick={onClose} aria-label="Close details"><X size={19}/></button></div>
       <div className="min-h-0 flex-1 overflow-y-auto">
         <div className="bg-[#18181B] p-7 text-white"><StudentAvatar student={student} large/><h2 className="mt-4 text-2xl font-extrabold tracking-tight">{student.name}</h2><p className="mt-1.5 text-xs text-zinc-400">{student.id} · Academic year 2026</p><div className="mt-4"><StatusBadge status={student.status}/></div></div>
@@ -51,15 +46,9 @@ function StudentDetail({ student, onClose, onEdit, onDelete }) {
   </div>, document.body);
 }
 function DeleteConfirmation({ student, onClose, onConfirm }) {
-  useEffect(() => {
-    const previous = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    function onKey(event) { if (event.key === 'Escape') onClose(); }
-    window.addEventListener('keydown', onKey);
-    return () => { document.body.style.overflow = previous; window.removeEventListener('keydown', onKey); };
-  }, [onClose]);
+  const dialogRef = useDialogAccessibility(onClose);
   return createPortal(<div className="fixed inset-0 z-[110] flex items-center justify-center bg-[#09090B]/65 p-4" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
-    <section role="alertdialog" aria-modal="true" aria-label="Confirm student deletion" className="w-full max-w-[420px] rounded-[24px] bg-white p-6 shadow-2xl sm:p-7"><span className="flex size-12 items-center justify-center rounded-2xl bg-red-50 text-red-600"><Trash2 size={22}/></span><h2 className="mt-4 text-xl font-extrabold">Delete student?</h2><p className="mt-2 text-[13px] leading-6 text-zinc-500">This will remove <strong className="text-zinc-900">{student.name}</strong> ({student.id}) from your demo directory. This cannot be undone, except by resetting the sample data.</p><div className="mt-7 flex justify-end gap-3"><button type="button" onClick={onClose} className="rounded-xl border border-zinc-200 px-4 py-3 text-xs font-bold text-zinc-700 hover:bg-zinc-50">Cancel</button><button type="button" onClick={onConfirm} className="rounded-xl bg-red-600 px-4 py-3 text-xs font-bold text-white hover:bg-red-700">Yes, delete</button></div></section>
+    <section ref={dialogRef} tabIndex={-1} role="alertdialog" aria-modal="true" aria-label="Confirm student deletion" className="w-full max-w-[420px] rounded-[24px] bg-white p-6 shadow-2xl sm:p-7"><span className="flex size-12 items-center justify-center rounded-2xl bg-red-50 text-red-600"><Trash2 size={22}/></span><h2 className="mt-4 text-xl font-extrabold">Delete student?</h2><p className="mt-2 text-[13px] leading-6 text-zinc-500">This will remove <strong className="text-zinc-900">{student.name}</strong> ({student.id}) from your demo directory. This cannot be undone, except by resetting the sample data.</p><div className="mt-7 flex justify-end gap-3"><button type="button" onClick={onClose} className="rounded-xl border border-zinc-200 px-4 py-3 text-xs font-bold text-zinc-700 hover:bg-zinc-50">Cancel</button><button type="button" onClick={onConfirm} className="rounded-xl bg-red-600 px-4 py-3 text-xs font-bold text-white hover:bg-red-700">Yes, delete</button></div></section>
   </div>, document.body);
 }
 function MetricCard({ icon: Icon, label, value, helper, dark = false }) {
@@ -138,7 +127,7 @@ export default function StudentsPage() {
       <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[#F0F0F1] px-5 py-4 sm:px-6"><p className="text-[11px] text-zinc-500">Showing <strong className="text-zinc-900">{first}–{last}</strong> of <strong className="text-zinc-900">{filtered.length}</strong> students</p><div className="flex items-center gap-2"><button type="button" aria-label="Previous page" onClick={() => setPage(Math.max(1, currentPage - 1))} disabled={currentPage <= 1} className="rounded-lg border border-[#E4E4E7] p-2 text-zinc-600 hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-30"><ChevronLeft size={17}/></button><span className="min-w-16 text-center text-[11px] font-semibold text-zinc-600">{currentPage} / {totalPages}</span><button type="button" aria-label="Next page" onClick={() => setPage(Math.min(totalPages, currentPage + 1))} disabled={currentPage >= totalPages} className="rounded-lg border border-[#E4E4E7] p-2 text-zinc-600 hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-30"><ChevronRight size={17}/></button></div></div>
     </section>
 
-    <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#E4E4E7] bg-[#FAF9F5] px-5 py-4"><div className="flex items-center gap-3"><span className="rounded-xl bg-[#F7FEE7] p-2.5 text-[#4D7C0F]"><Info size={18}/></span><div><p className="text-[12px] font-bold">Frontend demo mode</p><p className="mt-1 text-[11px] leading-5 text-zinc-500">No Go API or JSON files are modified in this checkpoint. Demo changes last within this browser tab.</p></div></div><span className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-[10px] font-bold text-zinc-500">Checkpoint 03</span></div>
+    <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#E4E4E7] bg-[#FAF9F5] px-5 py-4"><div className="flex items-center gap-3"><span className="rounded-xl bg-[#F7FEE7] p-2.5 text-[#4D7C0F]"><Info size={18}/></span><div><p className="text-[12px] font-bold">Frontend demo mode</p><p className="mt-1 text-[11px] leading-5 text-zinc-500">No Go API or JSON files are modified in this checkpoint. Demo changes last within this browser tab.</p></div></div><span className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-[10px] font-bold text-zinc-500">UI Demo</span></div>
     {toast && <div role="status" aria-live="polite" className="fixed bottom-5 right-4 z-[90] flex max-w-[calc(100vw-32px)] items-center gap-3 rounded-2xl border border-[#D9F99D] bg-white px-4 py-3 shadow-[0_20px_60px_rgba(0,0,0,0.15)] sm:right-7"><span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[#F7FEE7] text-[#4D7C0F]"><Check size={18}/></span><p className="text-[12px] font-semibold text-zinc-800">{toast}</p><button type="button" className="ml-2 text-zinc-500" aria-label="Dismiss notification" onClick={() => setToast('')}><X size={16}/></button></div>}
     {modal?.type === 'add' && <StudentFormModal mode="add" students={students} onClose={() => setModal(null)} onSave={saveStudent}/>}
     {modal?.type === 'edit' && selected && <StudentFormModal mode="edit" student={selected} students={students} onClose={() => setModal(null)} onSave={saveStudent}/>}
