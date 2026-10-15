@@ -1,17 +1,33 @@
-
 @import "tailwindcss";
 
 @theme {
   --color-brand: #A3E635;
   --color-brand-dark: #84CC16;
-
   --color-dark: #18181B;
   --color-page: #F4F4F5;
   --color-card: #FFFFFF;
-
   --color-soft-green: #F7FEE7;
   --color-cream: #FAF9F5;
-
   --color-muted: #71717A;
   --color-line: #E4E4E7;
+}
+
+:root {
+  font-family: Inter, "Segoe UI", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+html { min-width: 320px; }
+body { margin: 0; min-width: 320px; }
+button, input { font: inherit; }
+button { cursor: pointer; }
+::selection { background: #A3E635; color: #18181B; }
+:focus-visible { outline: 2px solid #84CC16; outline-offset: 3px; }
+.sidebar-scroll { scrollbar-width: thin; scrollbar-color: #45454b transparent; }
+.animate-enter { animation: enter .4s ease-out both; }
+@keyframes enter { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
